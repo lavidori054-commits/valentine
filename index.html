@@ -25,6 +25,7 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             max-width: 400px;
             width: 90%;
+            position: relative;
         }
 
         h1 {
@@ -36,14 +37,14 @@
         p {
             color: #555;
             font-size: 1.1rem;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             line-height: 1.5;
         }
 
         .buttons {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 30px;
             height: 60px;
             align-items: center;
             position: relative;
@@ -62,7 +63,6 @@
         #yesBtn {
             background-color: #ff4d6d;
             color: white;
-            z-index: 10;
         }
 
         #yesBtn:hover {
@@ -73,7 +73,10 @@
         #noBtn {
             background-color: #778da9;
             color: white;
-            position: absolute; /* מאפשר לכפתור לברוח על המסך */
+            position: absolute;
+            /* מיקום התחלתי בטוח שלא תלוי ב-JS */
+            left: 25%; 
+            top: 10px;
         }
     </style>
 </head>
@@ -93,44 +96,41 @@
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
 
-        // קיבוע מיקום התחלתי לכפתור ה"לא" כדי שלא יקפוץ מיד עם טעינת העמוד
-        window.onload = () => {
-            const rect = noBtn.getBoundingClientRect();
-            noBtn.style.left = rect.left + 'px';
-            noBtn.style.top = rect.top + 'px';
-        };
-
-        // פונקציה שמבריחה את כפתור ה"לא"
+        // פונקציה שמבריחה את כפתור ה"לא" למיקום אקראי לחלוטין על המסך
         function moveButton() {
-            const padding = 50; 
+            const padding = 60; 
             const maxX = window.innerWidth - noBtn.offsetWidth - padding;
             const maxY = window.innerHeight - noBtn.offsetHeight - padding;
 
-            // הגרלת מיקום חדש על המסך
+            // הגרלת מיקומים
             const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
             const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
 
+            // שינוי המיקום לכל מקום במסך (body) כדי שלא ייחסם בתוך התיבה
+            noBtn.style.position = 'fixed';
             noBtn.style.left = `${randomX}px`;
             noBtn.style.top = `${randomY}px`;
 
-            // בונוס: כפתור ה"כן" גדל קצת בכל פעם שמנסים ללחוץ על "לא"
+            // הגדלת כפתור ה"כן" בכל ניסיון ללחוץ על "לא"
             const currentScale = parseFloat(yesBtn.style.transform.replace('scale(', '')) || 1;
             yesBtn.style.transform = `scale(${currentScale + 0.15})`;
         }
 
-        // הפעלת הבריחה במעבר עכבר (מחשב) ובנגיעה (סמארטפון)
+        // מאזיני אירועים – עכבר ומסכי מגע
         noBtn.addEventListener('mouseover', moveButton);
         noBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // מונע מהמכשיר הנייד ללחוץ בטעות לפני שהכפתור בורח
+            e.preventDefault(); // מונע לחיצה סלולרית לפני הבריחה
             moveButton();
         });
 
-        // מה קורה כשהיא לוחצת על כן
+        // מסך הניצחון
         function celebrate() {
             document.querySelector('.container').innerHTML = `
                 <h1 style="font-size: 3rem;">יששש! 🎉</h1>
                 <p style="font-size: 1.5rem; color: #ff4d6d;">ידעתי שלא תוכלי לסרב... 😉❤️</p>
             `;
+            // מעלים את כפתור הלא שברח אם הוא נשאר ברקע
+            noBtn.style.display = 'none';
         }
     </script>
 
